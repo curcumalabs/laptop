@@ -156,10 +156,6 @@ brew_install_or_upgrade 'tmux'
 brew_install_or_upgrade 'vim'
 brew_install_or_upgrade 'bash'
 
-fancy_echo "Updating Heroku tools ..."
-brew_install_or_upgrade 'heroku-toolbelt'
-brew_install_or_upgrade 'parity'
-
 fancy_echo "Updating GitHub tools ..."
 brew_install_or_upgrade 'hub'
 
@@ -175,11 +171,18 @@ brew_install_or_upgrade 'node'
 brew_install_or_upgrade 'rbenv'
 brew_install_or_upgrade 'ruby-build'
 
+fancy_echo "Updating other stuffs ..."
+brew_install_or_upgrade 'phantomjs'
+brew_install_or_upgrade 'vim'
+
 fancy_echo "Updating databases ..."
+brew_install_or_upgrade 'mysql'
 brew_install_or_upgrade 'postgres'
 brew_install_or_upgrade 'redis'
+brew_launchctl_restart 'mysql'
 brew_launchctl_restart 'postgresql'
 brew_launchctl_restart 'redis'
+
 
 fancy_echo "Configuring Ruby ..."
 find_latest_ruby() {
