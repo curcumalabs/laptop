@@ -11,21 +11,21 @@ fancy_echo() {
   printf "\n$fmt\n" "$@"
 }
 
-append_to_zshrc() {
-  local text="$1" zshrc
+append_to_bashrc() {
+  local text="$1" bashrc
   local skip_new_line="${2:-0}"
 
-  if [ -w "$HOME/.zshrc.local" ]; then
-    zshrc="$HOME/.zshrc.local"
+  if [ -w "$HOME/.bashrc.local" ]; then
+    bashrc="$HOME/.bashrc.local"
   else
-    zshrc="$HOME/.zshrc"
+    bashrc="$HOME/.bashrc"
   fi
 
-  if ! grep -Fqs "$text" "$zshrc"; then
+  if ! grep -Fqs "$text" "$bashrc"; then
     if [ "$skip_new_line" -eq 1 ]; then
-      printf "%s\n" "$text" >> "$zshrc"
+      printf "%s\n" "$text" >> "$bashrc"
     else
-      printf "\n%s\n" "$text" >> "$zshrc"
+      printf "\n%s\n" "$text" >> "$bashrc"
     fi
   fi
 }
@@ -39,12 +39,12 @@ if [ ! -d "$HOME/.bin/" ]; then
   mkdir "$HOME/.bin"
 fi
 
-if [ ! -f "$HOME/.zshrc" ]; then
-  touch "$HOME/.zshrc"
+if [ ! -f "$HOME/.bashrc" ]; then
+  touch "$HOME/.bashrc"
 fi
 
 # shellcheck disable=SC2016
-append_to_zshrc 'export PATH="$HOME/.bin:$PATH"'
+append_to_bashrc 'export PATH="$HOME/.bin:$PATH"'
 
 HOMEBREW_PREFIX="/usr/local"
 
@@ -59,10 +59,10 @@ else
 fi
 
 case "$SHELL" in
-  */zsh) : ;;
+  */bash) : ;;
   *)
-    fancy_echo "Changing your shell to zsh ..."
-      chsh -s "$(which zsh)"
+    fancy_echo "Changing your shell to bash ..."
+      chsh -s "$(which bash)"
     ;;
 esac
 
@@ -127,10 +127,10 @@ if ! command -v brew >/dev/null; then
     curl -fsS \
       'https://raw.githubusercontent.com/Homebrew/install/master/install' | ruby
 
-    append_to_zshrc '# recommended by brew doctor'
+    append_to_bashrc '# recommended by brew doctor'
 
     # shellcheck disable=SC2016
-    append_to_zshrc 'export PATH="/usr/local/bin:$PATH"' 1
+    append_to_bashrc 'export PATH="/usr/local/bin:$PATH"' 1
 
     export PATH="/usr/local/bin:$PATH"
 fi
@@ -154,11 +154,7 @@ brew_install_or_upgrade 'reattach-to-user-namespace'
 brew_install_or_upgrade 'the_silver_searcher'
 brew_install_or_upgrade 'tmux'
 brew_install_or_upgrade 'vim'
-brew_install_or_upgrade 'zsh'
-
-fancy_echo "Updating Heroku tools ..."
-brew_install_or_upgrade 'heroku-toolbelt'
-brew_install_or_upgrade 'parity'
+brew_install_or_upgrade 'bash'
 
 fancy_echo "Updating GitHub tools ..."
 brew_install_or_upgrade 'hub'
@@ -175,11 +171,18 @@ brew_install_or_upgrade 'node'
 brew_install_or_upgrade 'rbenv'
 brew_install_or_upgrade 'ruby-build'
 
+fancy_echo "Updating other stuffs ..."
+brew_install_or_upgrade 'phantomjs'
+brew_install_or_upgrade 'vim'
+
 fancy_echo "Updating databases ..."
+brew_install_or_upgrade 'mysql'
 brew_install_or_upgrade 'postgres'
 brew_install_or_upgrade 'redis'
+brew_launchctl_restart 'mysql'
 brew_launchctl_restart 'postgresql'
 brew_launchctl_restart 'redis'
+
 
 fancy_echo "Configuring Ruby ..."
 find_latest_ruby() {
@@ -188,7 +191,7 @@ find_latest_ruby() {
 
 ruby_version="$(find_latest_ruby)"
 # shellcheck disable=SC2016
-append_to_zshrc 'eval "$(rbenv init - --no-rehash)"' 1
+append_to_bashrc 'eval "$(rbenv init - --no-rehash)"' 1
 eval "$(rbenv init -)"
 
 if ! rbenv versions | grep -Fq "$ruby_version"; then
